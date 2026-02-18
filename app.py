@@ -37,19 +37,16 @@ st.markdown(
 st.write("---")
 
 # =====================================================
-# LOAD CSV SAFELY (NO ERROR)
+# LOAD DATA SAFELY
 # =====================================================
 @st.cache_data
 def load_data():
 
-    # ✅ Same folder me CSV rakho (GitHub root)
     file_path = "all_champions_trophy_matches_results.csv"
 
-    # अगर data folder me हो
     if os.path.exists("data/all_champions_trophy_matches_results.csv"):
         file_path = "data/all_champions_trophy_matches_results.csv"
 
-    # अगर फिर भी ना मिले
     if not os.path.exists(file_path):
         st.error("❌ CSV file missing! Upload it in repo root OR inside data folder.")
         st.stop()
@@ -69,12 +66,12 @@ def load_data():
 data = load_data()
 
 # =====================================================
-# TEAM LIST AUTO
+# TEAMS LIST
 # =====================================================
-teams = sorted(list(set(data["Team 1"]) | set(data["Team 2"])))
+teams = sorted(list(set(data["Team1"]) | set(data["Team2"])))
 
 # =====================================================
-# FLAG SYSTEM AUTO
+# FLAG AUTO SYSTEM
 # =====================================================
 def flag(team):
     return f"https://flagcdn.com/w320/{team[:2].lower()}.png"
@@ -97,7 +94,7 @@ team_filter = st.sidebar.selectbox(
 
 filtered = data[
     (data["Year"] == year_filter) &
-    ((data["Team 1"] == team_filter) | (data["Team 2"] == team_filter))
+    ((data["Team1"] == team_filter) | (data["Team2"] == team_filter))
 ]
 
 # =====================================================
@@ -105,11 +102,10 @@ filtered = data[
 # =====================================================
 st.subheader("📌 Team Performance Summary")
 
-col1, col2, col3 = st.columns(3)
-
 wins = len(filtered[filtered["Winner"] == team_filter])
 losses = len(filtered) - wins
 
+col1, col2, col3 = st.columns(3)
 col1.metric("Total Matches", len(filtered))
 col2.metric("Wins 🏆", wins)
 col3.metric("Losses ❌", losses)
@@ -163,52 +159,4 @@ fig3 = px.scatter_3d(
 )
 st.plotly_chart(fig3, use_container_width=True)
 
-# =====================================================
-# TOSS BAT vs FIELD IMPACT
-# =====================================================
-st.subheader("🎲 Toss Decision Impact (Bat vs Field)")
-
-toss_fig = px.histogram(
-    data,
-    x="Toss_Decision",
-    color="Winner",
-    barmode="group",
-    title="Bat vs Field Decision After Toss"
-)
-st.plotly_chart(toss_fig, use_container_width=True)
-
-# =====================================================
-# GROUNDS ANALYSIS
-# =====================================================
-st.subheader("🏟 Top Grounds")
-
-top_grounds = data["Ground"].value_counts().head(10)
-
-fig4 = px.bar(
-    x=top_grounds.index,
-    y=top_grounds.values,
-    title="Most Played Grounds",
-    text_auto=True
-)
-st.plotly_chart(fig4, use_container_width=True)
-
-# =====================================================
-# TEAM FLAGS DISPLAY
-# =====================================================
-st.subheader("🏳️ All Teams Flags")
-
-cols = st.columns(5)
-
-for i, t in enumerate(teams[:20]):
-    with cols[i % 5]:
-        st.image(flag(t), width=70)
-        st.caption(t)
-
-# =====================================================
-# FINAL MATCH TABLE
-# =====================================================
-st.subheader(f"📅 Match Records: {team_filter} ({year_filter})")
-
-st.dataframe(filtered)
-
-st.success("✅ ICC Champions Trophy Professional Dashboard Ready 🚀")
+# ===================================
